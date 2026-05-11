@@ -1,0 +1,18 @@
+[project]
+name = "cognitive-mcp"
+version = "0.1.0"
+description = "Cognitive primitives MCP server"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+]
+
+[project.scripts]
+cognitive-mcp = "cognitive_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cognitive_mcp"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
