@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import logging
 
 from mcp.server.fastmcp import FastMCP
@@ -21,14 +22,28 @@ The tools form a cycle: attend -> modulate -> embody -> anchor -> commit -> atte
 
 Use specific, concrete names when the tools ask for references — they ground reasoning in real knowledge. Generic descriptions produce generic output."""
 
-mcp = FastMCP(name="cognitive", instructions=INSTRUCTIONS)
-
-primitives.register_tools(mcp)
-
 
 def main() -> None:
-    logger.info("Starting cognitive-mcp server")
-    mcp.run(transport="stdio")
+    parser = argparse.ArgumentParser(description="Cognitive primitives MCP server")
+    parser.add_argument("--http", action="store_true", help="Serve over Streamable HTTP instead of stdio")
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind when --http is set")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind when --http is set")
+    args = parser.parse_args()
+
+    mcp = FastMCP(
+        name="cognitive",
+        instructions=INSTRUCTIONS,
+        host=args.host,
+        port=args.port,
+    )
+    primitives.register_tools(mcp)
+
+    if args.http:
+        logger.info("Starting cognitive-mcp server (streamable-http on %s:%d)", args.host, args.port)
+        mcp.run(transport="streamable-http")
+    else:
+        logger.info("Starting cognitive-mcp server (stdio)")
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
